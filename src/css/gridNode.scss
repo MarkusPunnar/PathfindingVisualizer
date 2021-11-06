@@ -1,0 +1,42 @@
+@import "base";
+
+.node {
+  height: 1.6vw;
+  width: 1.6vw;
+  box-shadow: inset 0px 0px 0px 1px black;
+}
+
+.start {
+  background-color: red;
+}
+
+.end {
+  background-color: green;
+}
+
+.wall {
+  background-image: linear-gradient($dark_blue, $dark_blue);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  animation-name: createWall;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in;
+}
+
+.visited {
+  background-color: blue;
+}
+
+.path {
+  background-color: yellow;
+}
+
+@keyframes createWall {
+  0% {
+    background-size: 0% 0%;
+  }
+
+  100% {
+    background-size: 100% 100%;
+  }
+}
