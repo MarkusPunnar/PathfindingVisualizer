@@ -6,6 +6,7 @@ import {
   startNodeAtom,
   endNodeAtom,
   nodeAtom,
+  nodeClassesAtom,
 } from "../state/atoms";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import GridNode from "./GridNode";
@@ -19,8 +20,8 @@ interface GridProps {
 
 const getShortestPath = (endNode: Node): Node[] => {
   const shortestPath: Node[] = [];
-  let node = endNode.parent;
-  while (!!node && node.parent) {
+  let node: Node | undefined = endNode;
+  while (node) {
     shortestPath.push(node);
     node = node.parent;
   }
@@ -30,8 +31,8 @@ const getShortestPath = (endNode: Node): Node[] => {
 const getArrayIndex = (array: Node[], row: number, column: number): number => {
   return array.length !== 0
     ? array.findIndex(
-        (node) => node.position.row === row && node.position.column === column
-      )
+      (node) => node.position.row === row && node.position.column === column
+    )
     : -1;
 };
 
@@ -65,6 +66,7 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
     for (let i = 0; i < NUM_OF_ROWS; i++) {
       for (let j = 0; j < NUM_OF_NODES; j++) {
         reset(nodeAtom([i, j]));
+        reset(nodeClassesAtom([i, j]));
       }
     }
   });

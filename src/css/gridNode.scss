@@ -4,18 +4,13 @@
   height: 1.6vw;
   width: 1.6vw;
   box-shadow: inset 0px 0px 0px 1px black;
-}
-
-.start {
-  background-color: red;
-}
-
-.end {
-  background-color: green;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .wall {
-  background-image: linear-gradient($dark_blue, $dark_blue);
+  background-image: linear-gradient($wall_node, $wall_node);
   background-position: 50% 50%;
   background-repeat: no-repeat;
   animation-name: createWall;
@@ -24,11 +19,11 @@
 }
 
 .visited {
-  background-color: blue;
+  background-image: linear-gradient($visited_node_1, $visited_node_2);
 }
 
 .path {
-  background-color: yellow;
+  background-image: linear-gradient(darken($path_node_1, 5%), $path_node_2);
 }
 
 @keyframes createWall {

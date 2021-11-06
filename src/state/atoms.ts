@@ -40,3 +40,8 @@ export const nodeAtom = atomFamily<Node, number[]>({
   key: "grid",
   default: ([row, column]) => createNode(row, column),
 });
+
+export const nodeClassesAtom = atomFamily<string, number[]>({
+  key: "nodeClasses",
+  default: "node"
+});

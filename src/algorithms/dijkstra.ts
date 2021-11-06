@@ -37,13 +37,12 @@ export const dijkstra = (
       neighbours.forEach((neighbour) => {
         const newDistance = closestNode.distance + 1;
         if (newDistance < neighbour.distance) {
-          const newNeighbour: Node = { ...neighbour };
+          const newNeighbour: Node = JSON.parse(JSON.stringify(neighbour));
           newNeighbour.distance = newDistance;
           newNeighbour.parent = closestNode;
           priorityQueue.push(newNeighbour);
         }
       });
-      closestNode.flags.isVisited = true;
       visitedNodes.push(closestNode);
     }
   }
