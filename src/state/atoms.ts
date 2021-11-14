@@ -40,6 +40,16 @@ export const nodeAtom = atomFamily<Node, number[]>({
   default: ([row, column]) => createNode(row, column),
 });
 
+export const visitedNodesAtom = atom<Node[]>({
+  key: "visitedNodes",
+  default: [],
+});
+
+export const shortestPathNodesAtom = atom<Node[]>({
+  key: "shortestPathNodes",
+  default: [],
+});
+
 export const nodeClassesAtom = atomFamily<string, number[]>({
   key: "nodeClasses",
   default: "node",

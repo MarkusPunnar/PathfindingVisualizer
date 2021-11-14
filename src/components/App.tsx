@@ -4,8 +4,8 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import "../css/app.scss";
 
-let visualizeGrid: () => void = () => { };
-let resetGrid: () => void = () => { };
+let visualizeGrid: () => void = () => {};
+let resetGrid: () => void = () => {};
 
 const App = () => {
   const setOnVisualize = (childVisualize: () => void) => {
@@ -25,7 +25,7 @@ const App = () => {
           Visualize!
         </Button>
         <Button sx={{ m: 5 }} variant="contained" onClick={() => resetGrid()}>
-          Clear grid
+          Reset grid
         </Button>
       </Box>
       <Grid setOnVisualize={setOnVisualize} setOnClear={setOnClear}></Grid>

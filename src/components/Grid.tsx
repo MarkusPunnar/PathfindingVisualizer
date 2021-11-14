@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useSetRecoilState, useRecoilCallback } from "recoil";
+import React, { useEffect } from "react";
+import { useSetRecoilState, useRecoilCallback, useRecoilState } from "recoil";
 import "../css/grid.scss";
 import {
   isDrawingWallsAtom,
   nodeAtom,
   nodeClassesAtom,
   isVisualizedAtom,
+  visitedNodesAtom,
+  shortestPathNodesAtom,
 } from "../state/atoms";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import GridNode from "./GridNode";
@@ -17,8 +19,9 @@ interface GridProps {
   setOnClear: (childClear: () => void) => void;
 }
 
-let startPositionFuncs: (() => NodePosition)[] = [];
-let endPositionFuncs: (() => NodePosition)[] = [];
+const startPositionFuncs: (() => NodePosition)[] = [];
+const endPositionFuncs: (() => NodePosition)[] = [];
+const resetNodeFuncs: (() => void)[] = [];
 
 const getShortestPath = (endNode: Node): Node[] => {
   const shortestPath: Node[] = [];
@@ -73,16 +76,25 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
   ) => {
     endPositionFuncs[childIndex] = childEndPosition;
   };
+  const setResetNode = (
+    childResetNode: () => NodePosition,
+    childIndex: number
+  ) => {
+    resetNodeFuncs[childIndex] = childResetNode;
+  };
   const setIsDrawingWalls = useSetRecoilState(isDrawingWallsAtom);
   const setIsVisualized = useSetRecoilState(isVisualizedAtom);
-  const [visitedNodes, setVisitedNodes] = useState<Node[]>([]);
-  const [shortestPathNodes, setShortestPathNodes] = useState<Node[]>([]);
+  const [visitedNodes, setVisitedNodes] = useRecoilState(visitedNodesAtom);
+  const [shortestPathNodes, setShortestPathNodes] = useRecoilState(
+    shortestPathNodesAtom
+  );
   useEffect(() => {
     setOnVisualize(() => {
       visualizeDijkstra();
       setIsVisualized(true);
     });
     setOnClear(() => {
+      resetNodeFuncs.forEach((resetFunc) => resetFunc());
       resetGridState();
       setVisitedNodes([]);
       setShortestPathNodes([]);
@@ -95,7 +107,8 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
         let nodes: Node[] = [];
         for (let i = 0; i < NUM_OF_ROWS; i++) {
           for (let j = 0; j < NUM_OF_NODES; j++) {
-            nodes = [...nodes, getLoadable(nodeAtom([i, j])).getValue()];
+            const nodeValue = getLoadable(nodeAtom([i, j])).getValue();
+            nodes = [...nodes, JSON.parse(JSON.stringify(nodeValue))];
           }
         }
         return nodes;
@@ -112,8 +125,9 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
   const visualizeDijkstra = () => {
     const startNodePosition = getStartNodePosition();
     const endNodePosition = getEndNodePosition();
+    const gridNodes = getGridState();
     const newVisitedNodes = dijkstra(
-      getGridState(),
+      gridNodes,
       startNodePosition,
       endNodePosition
     );
@@ -147,6 +161,7 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
             )}
             setIsStartPosition={setIsStartPosition}
             setIsEndPosition={setIsEndPosition}
+            setResetNode={setResetNode}
             key={index}
           ></GridNode>
         );

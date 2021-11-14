@@ -3,7 +3,12 @@ import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import { Node, NodePosition } from "../types";
 import { getIndex, isEndNode } from "./common";
 
-const nodeDistanceComparator = (a: Node, b: Node) => a.distance - b.distance;
+const nodeDistanceComparator = (a: Node, b: Node) => {
+  if (a.distance === Infinity && b.distance === Infinity) {
+    return 0;
+  }
+  return a.distance - b.distance;
+};
 
 export const dijkstra = (
   grid: Node[],
@@ -14,6 +19,7 @@ export const dijkstra = (
   if (!grid || startPosition === endPosition) {
     return visitedNodes;
   }
+  grid.forEach((node) => (node.distance = Infinity));
   //Set start node distance to 0
   grid[startPosition.row * NUM_OF_NODES + startPosition.column].distance = 0;
   const priorityQueue = new Heap(nodeDistanceComparator);

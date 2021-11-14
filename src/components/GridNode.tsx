@@ -1,5 +1,6 @@
 import classNames from "classnames";
 import React, { useEffect, useState } from "react";
+import ReactDOM from "react-dom";
 import { VscDebugStart } from "react-icons/vsc";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { useCallback } from "react";
@@ -15,6 +16,12 @@ import {
 } from "../state/atoms";
 import { NodePosition } from "../types";
 import { getIndex } from "../algorithms/common";
+import {
+  DEFAULT_END_COLUMN,
+  DEFAULT_END_ROW,
+  DEFAULT_START_COLUMN,
+  DEFAULT_START_ROW,
+} from "../state/constants";
 
 const PATH_CLASS = "path";
 const VISITED_CLASS = "visited";
@@ -26,6 +33,7 @@ interface NodeProps {
   pathNumber: number;
   setIsStartPosition: any;
   setIsEndPosition: any;
+  setResetNode: any;
 }
 
 const getPathNodeDelay = (visitedCount: number, pathNumber: number): number => {
@@ -43,14 +51,19 @@ const GridNode = ({
   visitedCount,
   setIsStartPosition,
   setIsEndPosition,
+  setResetNode,
 }: NodeProps) => {
   const isDrawingWalls = useRecoilValue(isDrawingWallsAtom);
   const isVisualized = useRecoilValue(isVisualizedAtom);
   const [isMovingStart, setIsMovingStart] = useRecoilState(isMovingStartAtom);
   const [isMovingEnd, setIsMovingEnd] = useRecoilState(isMovingEndAtom);
   const [node, setNode] = useRecoilState(nodeAtom([row, column]));
-  const [isStart, setIsStart] = useState<boolean>(row === 10 && column === 5);
-  const [isEnd, setIsEnd] = useState<boolean>(row === 10 && column === 45);
+  const isDefaultStart = () =>
+    row === DEFAULT_START_ROW && column === DEFAULT_START_COLUMN;
+  const isDefaultEnd = () =>
+    row === DEFAULT_END_ROW && column === DEFAULT_END_COLUMN;
+  const [isStart, setIsStart] = useState<boolean>(isDefaultStart());
+  const [isEnd, setIsEnd] = useState<boolean>(isDefaultEnd());
   const getClassNames = useCallback((isWall: boolean): string => {
     const wallClass = isWall ? "wall" : "";
     return classNames("node", wallClass);
@@ -65,22 +78,28 @@ const GridNode = ({
   const isEndPosition = () => {
     return isEnd ? { row, column } : undefined;
   };
+  const resetNode = () => {};
   useEffect(() => {
     setIsStartPosition(isStartPosition, getIndex(node));
     setIsEndPosition(isEndPosition, getIndex(node));
+    setResetNode(resetNode, getIndex(node));
   });
   useEffect(() => {
     const timeouts: NodeJS.Timeout[] = [];
     if (visitedNumber !== -1 && !node.flags.isVisited) {
       const visitTimerId = setTimeout(() => {
-        setNode({
-          ...node,
-          flags: {
-            ...node.flags,
-            isVisited: true,
-          },
+        ReactDOM.unstable_batchedUpdates(() => {
+          setNode({
+            ...node,
+            flags: {
+              ...node.flags,
+              isVisited: true,
+            },
+          });
+          setClasses(
+            classNames(getClassNames(node.flags.isWall), VISITED_CLASS)
+          );
         });
-        setClasses(classNames(getClassNames(node.flags.isWall), VISITED_CLASS));
       }, getVisitedNodeDelay(visitedNumber));
       timeouts.push(visitTimerId);
     } else if (pathNumber !== -1) {
