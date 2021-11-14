@@ -1,6 +1,7 @@
 import Heap from "heap-js";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import { Node, NodePosition } from "../types";
+import { getIndex, isEndNode } from "./common";
 
 const nodeDistanceComparator = (a: Node, b: Node) => a.distance - b.distance;
 
@@ -64,15 +65,4 @@ const getNeighbours = (grid: Node[], index: number): Node[] => {
     neighbours.push(grid[index + NUM_OF_NODES]);
   }
   return neighbours;
-};
-
-const getIndex = ({ position: { row, column } }: Node): number => {
-  return row * NUM_OF_NODES + column;
-};
-
-const isEndNode = (node: Node, endPosition: NodePosition): boolean => {
-  return (
-    node.position.row === endPosition.row &&
-    node.position.column === endPosition.column
-  );
 };

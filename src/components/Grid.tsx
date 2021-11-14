@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useSetRecoilState, useRecoilValue, useRecoilCallback } from "recoil";
+import { useSetRecoilState, useRecoilCallback } from "recoil";
 import "../css/grid.scss";
 import {
   isDrawingWallsAtom,
-  startNodeAtom,
-  endNodeAtom,
   nodeAtom,
   nodeClassesAtom,
+  isVisualizedAtom,
 } from "../state/atoms";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import GridNode from "./GridNode";
-import { Node } from "../types";
+import { Node, NodePosition } from "../types";
 import { dijkstra } from "../algorithms/dijkstra";
 
 interface GridProps {
   setOnVisualize: (childVisualize: () => void) => void;
   setOnClear: (childClear: () => void) => void;
 }
+
+let startPositionFuncs: (() => NodePosition)[] = [];
+let endPositionFuncs: (() => NodePosition)[] = [];
 
 const getShortestPath = (endNode: Node): Node[] => {
   const shortestPath: Node[] = [];
@@ -31,23 +33,60 @@ const getShortestPath = (endNode: Node): Node[] => {
 const getArrayIndex = (array: Node[], row: number, column: number): number => {
   return array.length !== 0
     ? array.findIndex(
-      (node) => node.position.row === row && node.position.column === column
-    )
+        (node) => node.position.row === row && node.position.column === column
+      )
     : -1;
 };
 
+const getNodePositionFromChildren = (
+  positionFuncs: (() => NodePosition)[]
+): NodePosition => {
+  let nodePosition = { row: -1, column: -1 };
+  for (let positionFunc of positionFuncs) {
+    const childPosition = positionFunc();
+    if (childPosition) {
+      nodePosition = childPosition;
+      break;
+    }
+  }
+  return nodePosition;
+};
+
+const getStartNodePosition = (): NodePosition => {
+  return getNodePositionFromChildren(startPositionFuncs);
+};
+
+const getEndNodePosition = (): NodePosition => {
+  return getNodePositionFromChildren(endPositionFuncs);
+};
+
 const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
+  const setIsStartPosition = (
+    childStartPosition: () => NodePosition,
+    childIndex: number
+  ) => {
+    startPositionFuncs[childIndex] = childStartPosition;
+  };
+  const setIsEndPosition = (
+    childEndPosition: () => NodePosition,
+    childIndex: number
+  ) => {
+    endPositionFuncs[childIndex] = childEndPosition;
+  };
   const setIsDrawingWalls = useSetRecoilState(isDrawingWallsAtom);
-  const startNodePosition = useRecoilValue(startNodeAtom);
-  const endNodePosition = useRecoilValue(endNodeAtom);
+  const setIsVisualized = useSetRecoilState(isVisualizedAtom);
   const [visitedNodes, setVisitedNodes] = useState<Node[]>([]);
   const [shortestPathNodes, setShortestPathNodes] = useState<Node[]>([]);
   useEffect(() => {
-    setOnVisualize(visualizeDijkstra);
+    setOnVisualize(() => {
+      visualizeDijkstra();
+      setIsVisualized(true);
+    });
     setOnClear(() => {
       resetGridState();
       setVisitedNodes([]);
       setShortestPathNodes([]);
+      setIsVisualized(false);
     });
   });
   const getGridState = useRecoilCallback(
@@ -71,6 +110,8 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
     }
   });
   const visualizeDijkstra = () => {
+    const startNodePosition = getStartNodePosition();
+    const endNodePosition = getEndNodePosition();
     const newVisitedNodes = dijkstra(
       getGridState(),
       startNodePosition,
@@ -94,15 +135,9 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
       {Array.from(Array(NUM_OF_ROWS * NUM_OF_NODES).keys()).map((index) => {
         const row = Math.floor(index / NUM_OF_NODES);
         const column = index % NUM_OF_NODES;
-        const isStart =
-          startNodePosition.row === row && startNodePosition.column === column;
-        const isEnd =
-          endNodePosition.row === row && endNodePosition.column === column;
         return (
           <GridNode
             position={{ row, column }}
-            isStart={isStart}
-            isEnd={isEnd}
             visitedNumber={getArrayIndex(visitedNodes, row, column)}
             visitedCount={visitedNodes.length}
             pathNumber={getArrayIndex(
@@ -110,6 +145,8 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
               row,
               column
             )}
+            setIsStartPosition={setIsStartPosition}
+            setIsEndPosition={setIsEndPosition}
             key={index}
           ></GridNode>
         );

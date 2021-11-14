@@ -13,20 +13,43 @@
   background-image: linear-gradient($wall_node, $wall_node);
   background-position: 50% 50%;
   background-repeat: no-repeat;
-  animation-name: createWall;
+  animation-name: createNode;
   animation-duration: 0.3s;
   animation-timing-function: ease-in;
 }
 
 .visited {
   background-image: linear-gradient($visited_node_1, $visited_node_2);
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  animation-name: createNode;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in;
 }
 
 .path {
   background-image: linear-gradient(darken($path_node_1, 5%), $path_node_2);
 }
 
-@keyframes createWall {
+@media only screen and (min-width: 1800px) {
+  .icon {
+    font-size: 24px;
+  }
+}
+
+@media only screen and (min-width: 1400px) and (max-width: 1700px) {
+  .icon {
+    font-size: 20px;
+  }
+}
+
+@media only screen and (max-width: 1200px) {
+  .icon {
+    font-size: 14px;
+  }
+}
+
+@keyframes createNode {
   0% {
     background-size: 0% 0%;
   }

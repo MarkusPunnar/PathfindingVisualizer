@@ -1,5 +1,5 @@
 import { atom, atomFamily } from "recoil";
-import { Node, NodePosition } from "../types";
+import { Node } from "../types";
 
 const createNode = (row: number, column: number): Node => {
   return {
@@ -15,24 +15,23 @@ const createNode = (row: number, column: number): Node => {
   };
 };
 
-export const startNodeAtom = atom<NodePosition>({
-  key: "startNode",
-  default: {
-    row: 10,
-    column: 5,
-  },
-});
-
-export const endNodeAtom = atom<NodePosition>({
-  key: "endNode",
-  default: {
-    row: 10,
-    column: 45,
-  },
-});
-
 export const isDrawingWallsAtom = atom<boolean>({
   key: "isDrawingWalls",
+  default: false,
+});
+
+export const isVisualizedAtom = atom<boolean>({
+  key: "isVisualized",
+  default: false,
+});
+
+export const isMovingStartAtom = atom<boolean>({
+  key: "isMovingStart",
+  default: false,
+});
+
+export const isMovingEndAtom = atom<boolean>({
+  key: "isMovingEnd",
   default: false,
 });
 
@@ -43,5 +42,5 @@ export const nodeAtom = atomFamily<Node, number[]>({
 
 export const nodeClassesAtom = atomFamily<string, number[]>({
   key: "nodeClasses",
-  default: "node"
+  default: "node",
 });
