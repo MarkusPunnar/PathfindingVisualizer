@@ -1,13 +1,19 @@
 import Heap from "heap-js";
-import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
-import { Node, NodePosition } from "../types";
-import { getIndex, isEndNode } from "./common";
+import { NUM_OF_NODES } from "../state/constants";
+import { DijkstraProps, Node, NodePosition } from "../types";
+import { getIndex, isEndNode, getNeighbours } from "./common";
 
 const nodeDistanceComparator = (a: Node, b: Node) => {
-  if (a.distance === Infinity && b.distance === Infinity) {
+  const aProps = a.props as DijkstraProps;
+  const bProps = b.props as DijkstraProps;
+  if (aProps.distance === Infinity && bProps.distance === Infinity) {
     return 0;
   }
-  return a.distance - b.distance;
+  const distanceDifference = aProps.distance - bProps.distance;
+  if (distanceDifference !== 0) {
+    return distanceDifference;
+  }
+  return a.position.column - b.position.column;
 };
 
 export const dijkstra = (
@@ -19,15 +25,15 @@ export const dijkstra = (
   if (!grid || startPosition === endPosition) {
     return visitedNodes;
   }
-  grid.forEach((node) => (node.distance = Infinity));
+  grid.forEach((node) => (node.props = { distance: Infinity }));
   //Set start node distance to 0
-  grid[startPosition.row * NUM_OF_NODES + startPosition.column].distance = 0;
+  setDistance(grid[startPosition.row * NUM_OF_NODES + startPosition.column], 0);
   const priorityQueue = new Heap(nodeDistanceComparator);
   priorityQueue.init(grid);
   const seenIndices = new Set<number>();
   while (!priorityQueue.isEmpty()) {
     const closestNode = priorityQueue.pop();
-    if (!closestNode || closestNode.distance === Infinity) {
+    if (!closestNode || getDistance(closestNode) === Infinity) {
       break;
     }
     if (isEndNode(closestNode, endPosition)) {
@@ -42,10 +48,10 @@ export const dijkstra = (
       seenIndices.add(index);
       const neighbours = getNeighbours(grid, index);
       neighbours.forEach((neighbour) => {
-        const newDistance = closestNode.distance + 1;
-        if (newDistance < neighbour.distance) {
+        const newDistance = getDistance(closestNode) + 1;
+        if (newDistance < getDistance(neighbour)) {
           const newNeighbour: Node = JSON.parse(JSON.stringify(neighbour));
-          newNeighbour.distance = newDistance;
+          setDistance(newNeighbour, newDistance);
           newNeighbour.parent = closestNode;
           priorityQueue.push(newNeighbour);
         }
@@ -56,19 +62,12 @@ export const dijkstra = (
   return visitedNodes;
 };
 
-const getNeighbours = (grid: Node[], index: number): Node[] => {
-  const neighbours: Node[] = [];
-  if (index % NUM_OF_NODES !== NUM_OF_NODES - 1) {
-    neighbours.push(grid[index + 1]);
-  }
-  if (index % NUM_OF_NODES !== 0) {
-    neighbours.push(grid[index - 1]);
-  }
-  if (index >= NUM_OF_NODES) {
-    neighbours.push(grid[index - NUM_OF_NODES]);
-  }
-  if (index < NUM_OF_NODES * (NUM_OF_ROWS - 1)) {
-    neighbours.push(grid[index + NUM_OF_NODES]);
-  }
-  return neighbours;
+const getDistance = (node: Node): number => {
+  const props = node.props as DijkstraProps;
+  return props.distance;
+};
+
+const setDistance = (node: Node, distance: number) => {
+  const props = node.props as DijkstraProps;
+  props.distance = distance;
 };

@@ -1,5 +1,10 @@
 import React, { useEffect } from "react";
-import { useSetRecoilState, useRecoilCallback, useRecoilState } from "recoil";
+import {
+  useSetRecoilState,
+  useRecoilCallback,
+  useRecoilState,
+  useRecoilValue,
+} from "recoil";
 import "../css/grid.scss";
 import {
   isDrawingWallsAtom,
@@ -8,11 +13,13 @@ import {
   isVisualizedAtom,
   visitedNodesAtom,
   shortestPathNodesAtom,
+  selectedAlgorithmAtom,
 } from "../state/atoms";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import GridNode from "./GridNode";
-import { Node, NodePosition } from "../types";
+import { Algorithm, Node, NodePosition } from "../types";
 import { dijkstra } from "../algorithms/dijkstra";
+import { aStar } from "../algorithms/astar";
 
 interface GridProps {
   setOnVisualize: (childVisualize: () => void) => void;
@@ -88,9 +95,10 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
   const [shortestPathNodes, setShortestPathNodes] = useRecoilState(
     shortestPathNodesAtom
   );
+  const selectedAlgorithm = useRecoilValue(selectedAlgorithmAtom);
   useEffect(() => {
     setOnVisualize(() => {
-      visualizeDijkstra();
+      visualizeAlgorithm();
       setIsVisualized(true);
     });
     setOnClear(() => {
@@ -122,15 +130,23 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
       }
     }
   });
-  const visualizeDijkstra = () => {
+  const visualizeAlgorithm = () => {
     const startNodePosition = getStartNodePosition();
     const endNodePosition = getEndNodePosition();
     const gridNodes = getGridState();
-    const newVisitedNodes = dijkstra(
-      gridNodes,
-      startNodePosition,
-      endNodePosition
-    );
+    let newVisitedNodes: Node[] = [];
+    switch (selectedAlgorithm) {
+      case Algorithm.Dijkstra:
+        newVisitedNodes = dijkstra(
+          gridNodes,
+          startNodePosition,
+          endNodePosition
+        );
+        break;
+      case Algorithm.AStar:
+        newVisitedNodes = aStar(gridNodes, startNodePosition, endNodePosition);
+        break;
+    }
     const endNode = newVisitedNodes[newVisitedNodes.length - 1];
     if (
       endNode.position.row === endNodePosition.row &&

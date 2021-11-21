@@ -1,5 +1,5 @@
 import { atom, atomFamily } from "recoil";
-import { Node } from "../types";
+import { Algorithm, Node } from "../types";
 
 const createNode = (row: number, column: number): Node => {
   return {
@@ -11,7 +11,6 @@ const createNode = (row: number, column: number): Node => {
       isWall: false,
       isVisited: false,
     },
-    distance: Infinity,
   };
 };
 
@@ -48,6 +47,11 @@ export const visitedNodesAtom = atom<Node[]>({
 export const shortestPathNodesAtom = atom<Node[]>({
   key: "shortestPathNodes",
   default: [],
+});
+
+export const selectedAlgorithmAtom = atom<string>({
+  key: "selectedAlgorithm",
+  default: Algorithm.Dijkstra,
 });
 
 export const nodeClassesAtom = atomFamily<string, number[]>({

@@ -1,7 +1,6 @@
 import React from "react";
 import Grid from "./Grid";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import Controls from "./Controls";
 import "../css/app.scss";
 
 let visualizeGrid: () => void = () => {};
@@ -16,18 +15,10 @@ const App = () => {
   };
   return (
     <div className="container">
-      <Box>
-        <Button
-          sx={{ m: 5 }}
-          variant="contained"
-          onClick={() => visualizeGrid()}
-        >
-          Visualize!
-        </Button>
-        <Button sx={{ m: 5 }} variant="contained" onClick={() => resetGrid()}>
-          Reset grid
-        </Button>
-      </Box>
+      <Controls
+        visualizeGrid={() => visualizeGrid()}
+        resetGrid={() => resetGrid()}
+      ></Controls>
       <Grid setOnVisualize={setOnVisualize} setOnClear={setOnClear}></Grid>
     </div>
   );
