@@ -1,17 +1,15 @@
 import React from "react";
 import Button from "@mui/material/Button";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
-import { useRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { selectedAlgorithmAtom } from "../state/atoms";
-import { Algorithm } from "../types";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import "../css/controls.scss";
-import { BsFillCaretDownFill } from "react-icons/bs";
 import { GiHamburgerMenu } from "react-icons/gi";
+import AlgorithmMenu from "./AlgorithmMenu";
+import SpeedMenu from "./SpeedMenu";
 
 interface ControlsProps {
   visualizeGrid: () => void;
@@ -19,19 +17,7 @@ interface ControlsProps {
 }
 
 const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
-  const [menuAnchorElement, setMenuAnchorElement] = React.useState(null);
-  const open = Boolean(menuAnchorElement);
-  const [selectedAlgorithm, setSelectedAlgorithm] = useRecoilState(
-    selectedAlgorithmAtom
-  );
-  const handleAlgorithmChange = (event: any) => {
-    const { myValue: selectedAlgorithm } = event.currentTarget.dataset;
-    setSelectedAlgorithm(selectedAlgorithm);
-    setMenuAnchorElement(null);
-  };
-  const handleAlgorithmMenuClick = (event: any) => {
-    setMenuAnchorElement(event.currentTarget);
-  };
+  const selectedAlgorithm = useRecoilValue(selectedAlgorithmAtom);
   return (
     <div className="controls">
       <AppBar
@@ -47,36 +33,7 @@ const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
             Pathfinder
           </Typography>
           <Box>
-            <Button
-              sx={{ ml: 3 }}
-              color="inherit"
-              size="large"
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
-              endIcon={<BsFillCaretDownFill size="15" />}
-              onClick={handleAlgorithmMenuClick}
-            >
-              Algorithms
-            </Button>
-            <Menu
-              id="selectedAlgorithm"
-              open={open}
-              anchorEl={menuAnchorElement}
-              onClose={() => setMenuAnchorElement(null)}
-            >
-              <MenuItem
-                data-my-value={Algorithm.Dijkstra}
-                onClick={handleAlgorithmChange}
-              >
-                Dijkstra
-              </MenuItem>
-              <MenuItem
-                data-my-value={Algorithm.AStar}
-                onClick={handleAlgorithmChange}
-              >
-                A*
-              </MenuItem>
-            </Menu>
+            <AlgorithmMenu />
             <Button
               size="large"
               color="inherit"
@@ -93,6 +50,7 @@ const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
             >
               Reset grid
             </Button>
+            <SpeedMenu />
           </Box>
           <Box
             sx={{ mr: 3, flex: 1, display: "flex", justifyContent: "flex-end" }}

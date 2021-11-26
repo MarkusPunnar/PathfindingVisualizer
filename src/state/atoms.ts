@@ -1,5 +1,6 @@
 import { atom, atomFamily } from "recoil";
 import { Algorithm, Node } from "../types";
+import { FAST_NODE_UPDATE_SPEED } from "./constants";
 
 const createNode = (row: number, column: number): Node => {
   return {
@@ -52,6 +53,11 @@ export const shortestPathNodesAtom = atom<Node[]>({
 export const selectedAlgorithmAtom = atom<string>({
   key: "selectedAlgorithm",
   default: Algorithm.Dijkstra,
+});
+
+export const visualizationSpeedAtom = atom<number>({
+  key: "visualizationSpeed",
+  default: FAST_NODE_UPDATE_SPEED,
 });
 
 export const nodeClassesAtom = atomFamily<string, number[]>({

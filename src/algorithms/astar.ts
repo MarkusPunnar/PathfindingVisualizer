@@ -13,7 +13,7 @@ const nodeFComparator = (a: Node, b: Node) => {
   if (fDifference !== 0) {
     return fDifference;
   }
-  return a.position.column - b.position.column;
+  return a.props.f - a.props.g - 1 - (b.props.f - b.props.g - 1);
 };
 
 export const aStar = (

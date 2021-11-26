@@ -13,7 +13,7 @@ const nodeDistanceComparator = (a: Node, b: Node) => {
   if (distanceDifference !== 0) {
     return distanceDifference;
   }
-  return a.position.column - b.position.column;
+  return a.position.row - b.position.row;
 };
 
 export const dijkstra = (

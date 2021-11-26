@@ -13,6 +13,7 @@ import {
   isVisualizedAtom,
   nodeAtom,
   nodeClassesAtom,
+  visualizationSpeedAtom,
 } from "../state/atoms";
 import { NodePosition } from "../types";
 import { getIndex } from "../algorithms/common";
@@ -21,6 +22,7 @@ import {
   DEFAULT_END_ROW,
   DEFAULT_START_COLUMN,
   DEFAULT_START_ROW,
+  FAST_NODE_UPDATE_SPEED,
 } from "../state/constants";
 
 const PATH_CLASS = "path";
@@ -36,12 +38,23 @@ interface NodeProps {
   setResetNode: any;
 }
 
-const getPathNodeDelay = (visitedCount: number, pathNumber: number): number => {
-  return 4 * visitedCount + 5 * (pathNumber + 1);
+const getPathNodeDelay = (
+  visualizationSpeed: number,
+  visitedCount: number,
+  pathNumber: number
+): number => {
+  const delay =
+    visualizationSpeed * visitedCount +
+    FAST_NODE_UPDATE_SPEED * (pathNumber + 1);
+  console.log(`${pathNumber} - ${delay}`);
+  return delay;
 };
 
-const getVisitedNodeDelay = (visitedNumber: number) => {
-  return 4 * (visitedNumber + 1);
+const getVisitedNodeDelay = (
+  visualizationSpeed: number,
+  visitedNumber: number
+) => {
+  return visualizationSpeed * (visitedNumber + 1);
 };
 
 const GridNode = ({
@@ -55,6 +68,7 @@ const GridNode = ({
 }: NodeProps) => {
   const isDrawingWalls = useRecoilValue(isDrawingWallsAtom);
   const isVisualized = useRecoilValue(isVisualizedAtom);
+  const visualizationSpeed = useRecoilValue(visualizationSpeedAtom);
   const [isMovingStart, setIsMovingStart] = useRecoilState(isMovingStartAtom);
   const [isMovingEnd, setIsMovingEnd] = useRecoilState(isMovingEndAtom);
   const [node, setNode] = useRecoilState(nodeAtom([row, column]));
@@ -78,7 +92,10 @@ const GridNode = ({
   const isEndPosition = () => {
     return isEnd ? { row, column } : undefined;
   };
-  const resetNode = () => {};
+  const resetNode = () => {
+    setIsStart(isDefaultStart());
+    setIsEnd(isDefaultEnd());
+  };
   useEffect(() => {
     setIsStartPosition(isStartPosition, getIndex(node));
     setIsEndPosition(isEndPosition, getIndex(node));
@@ -100,12 +117,12 @@ const GridNode = ({
             classNames(getClassNames(node.flags.isWall), VISITED_CLASS)
           );
         });
-      }, getVisitedNodeDelay(visitedNumber));
+      }, getVisitedNodeDelay(visualizationSpeed, visitedNumber));
       timeouts.push(visitTimerId);
     } else if (pathNumber !== -1) {
       const pathTimerId = setTimeout(() => {
         setClasses(classNames(getClassNames(node.flags.isWall), PATH_CLASS));
-      }, getPathNodeDelay(visitedCount, pathNumber));
+      }, getPathNodeDelay(visualizationSpeed, visitedCount, pathNumber));
       timeouts.push(pathTimerId);
     }
     return () => {
@@ -122,6 +139,7 @@ const GridNode = ({
     setNode,
     setClasses,
     visitedCount,
+    visualizationSpeed,
   ]);
   const handleMouseOver = () => {
     if (isMovingStart) {
