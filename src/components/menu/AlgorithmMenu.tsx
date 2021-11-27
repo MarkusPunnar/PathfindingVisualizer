@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useSetRecoilState } from "recoil";
-import { selectedAlgorithmAtom } from "../state/atoms";
-import { Algorithm } from "../types";
+import { selectedAlgorithmAtom } from "../../state/atoms";
+import { Algorithm } from "../../types";
 import Button from "@mui/material/Button";
 import { BsFillCaretDownFill } from "react-icons/bs";
 
@@ -23,12 +23,12 @@ const AlgorithmMenu = () => {
   return (
     <span>
       <Button
-        sx={{ ml: 3 }}
+        sx={{ mx: "5px", backgroundColor: "#FF9500" }}
         color="inherit"
-        size="large"
+        size="small"
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
-        endIcon={<BsFillCaretDownFill size="15" />}
+        endIcon={<BsFillCaretDownFill size="12" />}
         onClick={handleAlgorithmMenuClick}
       >
         Algorithms

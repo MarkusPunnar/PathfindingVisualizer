@@ -17,18 +17,20 @@ import {
 } from "../state/atoms";
 import { NUM_OF_NODES, NUM_OF_ROWS } from "../state/constants";
 import GridNode from "./GridNode";
-import { Algorithm, Node, NodePosition } from "../types";
+import { Algorithm, Node, NodePosition, VoidFunction } from "../types";
 import { dijkstra } from "../algorithms/dijkstra";
 import { aStar } from "../algorithms/astar";
 
 interface GridProps {
   setOnVisualize: (childVisualize: VoidFunction) => void;
-  setOnClear: (childClear: VoidFunction) => void;
+  setOnReset: (childReset: VoidFunction) => void;
+  setOnClearPath: (childClearPath: VoidFunction) => void;
 }
 
 const startPositionFuncs: (() => NodePosition)[] = [];
 const endPositionFuncs: (() => NodePosition)[] = [];
 const resetNodeFuncs: VoidFunction[] = [];
+const clearNodeFuncs: VoidFunction[] = [];
 
 const getShortestPath = (endNode: Node): Node[] => {
   const shortestPath: Node[] = [];
@@ -70,7 +72,7 @@ const getEndNodePosition = (): NodePosition => {
   return getNodePositionFromChildren(endPositionFuncs);
 };
 
-const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
+const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
   const setIsStartPosition = (
     childStartPosition: () => NodePosition,
     childIndex: number
@@ -83,11 +85,11 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
   ) => {
     endPositionFuncs[childIndex] = childEndPosition;
   };
-  const setResetNode = (
-    childResetNode: () => NodePosition,
-    childIndex: number
-  ) => {
+  const setResetNode = (childResetNode: VoidFunction, childIndex: number) => {
     resetNodeFuncs[childIndex] = childResetNode;
+  };
+  const setClearNode = (childClearNode: VoidFunction, childIndex: number) => {
+    clearNodeFuncs[childIndex] = childClearNode;
   };
   const setIsDrawingWalls = useSetRecoilState(isDrawingWallsAtom);
   const setIsVisualized = useSetRecoilState(isVisualizedAtom);
@@ -101,9 +103,15 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
       visualizeAlgorithm();
       setIsVisualized(true);
     });
-    setOnClear(() => {
+    setOnReset(() => {
       resetNodeFuncs.forEach((resetFunc) => resetFunc());
       resetGridState();
+      setVisitedNodes([]);
+      setShortestPathNodes([]);
+      setIsVisualized(false);
+    });
+    setOnClearPath(() => {
+      clearNodeFuncs.forEach((clearFunc) => clearFunc());
       setVisitedNodes([]);
       setShortestPathNodes([]);
       setIsVisualized(false);
@@ -178,6 +186,7 @@ const Grid = ({ setOnVisualize, setOnClear }: GridProps) => {
             setIsStartPosition={setIsStartPosition}
             setIsEndPosition={setIsEndPosition}
             setResetNode={setResetNode}
+            setClearNode={setClearNode}
             key={index}
           ></GridNode>
         );

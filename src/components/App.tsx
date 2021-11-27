@@ -6,21 +6,30 @@ import { VoidFunction } from "../types";
 
 let visualizeGrid: VoidFunction = () => {};
 let resetGrid: VoidFunction = () => {};
+let clearPath: VoidFunction = () => {};
 
 const App = () => {
   const setOnVisualize = (childVisualize: VoidFunction) => {
     visualizeGrid = childVisualize;
   };
-  const setOnClear = (childClear: VoidFunction) => {
-    resetGrid = childClear;
+  const setOnReset = (childReset: VoidFunction) => {
+    resetGrid = childReset;
+  };
+  const setOnClearPath = (childClearPath: VoidFunction) => {
+    clearPath = childClearPath;
   };
   return (
     <div className="container">
       <Controls
         visualizeGrid={() => visualizeGrid()}
         resetGrid={() => resetGrid()}
+        clearPath={() => clearPath()}
       ></Controls>
-      <Grid setOnVisualize={setOnVisualize} setOnClear={setOnClear}></Grid>
+      <Grid
+        setOnVisualize={setOnVisualize}
+        setOnReset={setOnReset}
+        setOnClearPath={setOnClearPath}
+      ></Grid>
     </div>
   );
 };

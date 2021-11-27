@@ -15,7 +15,7 @@ import {
   nodeClassesAtom,
   visualizationSpeedAtom,
 } from "../state/atoms";
-import { NodePosition } from "../types";
+import { NodePosition, VoidFunction } from "../types";
 import { getIndex } from "../algorithms/common";
 import {
   DEFAULT_END_COLUMN,
@@ -35,7 +35,8 @@ interface NodeProps {
   pathNumber: number;
   setIsStartPosition: any;
   setIsEndPosition: any;
-  setResetNode: any;
+  setResetNode: (childResetNode: VoidFunction, index: number) => void;
+  setClearNode: (childClearNode: VoidFunction, index: number) => void;
 }
 
 const getPathNodeDelay = (
@@ -43,7 +44,7 @@ const getPathNodeDelay = (
   visitedCount: number,
   pathNumber: number
 ): number => {
-  return visualizationSpeed * (visitedCount + pathNumber + 1);
+  return visualizationSpeed * (visitedCount + 2 * (pathNumber + 1));
 };
 
 const getVisitedNodeDelay = (
@@ -61,6 +62,7 @@ const GridNode = ({
   setIsStartPosition,
   setIsEndPosition,
   setResetNode,
+  setClearNode,
 }: NodeProps) => {
   const isDrawingWalls = useRecoilValue(isDrawingWallsAtom);
   const isVisualized = useRecoilValue(isVisualizedAtom);
@@ -92,10 +94,21 @@ const GridNode = ({
     setIsStart(isDefaultStart());
     setIsEnd(isDefaultEnd());
   };
+  const clearNode = () => {
+    setClasses(getClassNames(node.flags.isWall));
+    setNode({
+      ...node,
+      flags: {
+        ...node.flags,
+        isVisited: false,
+      },
+    });
+  };
   useEffect(() => {
     setIsStartPosition(isStartPosition, getIndex(node));
     setIsEndPosition(isEndPosition, getIndex(node));
     setResetNode(resetNode, getIndex(node));
+    setClearNode(clearNode, getIndex(node));
   });
   useTimeout(() => {
     if (visitedNumber !== -1 && !node.flags.isVisited) {

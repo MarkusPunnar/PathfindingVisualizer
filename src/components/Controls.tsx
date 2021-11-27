@@ -7,16 +7,18 @@ import { selectedAlgorithmAtom } from "../state/atoms";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import "../css/controls.scss";
-import { GiHamburgerMenu } from "react-icons/gi";
-import AlgorithmMenu from "./AlgorithmMenu";
-import SpeedMenu from "./SpeedMenu";
+import AlgorithmMenu from "./menu/AlgorithmMenu";
+import SpeedMenu from "./menu/SpeedMenu";
+import { VoidFunction } from "../types";
+import PatternMenu from "./menu/PatternMenu";
 
 interface ControlsProps {
   visualizeGrid: VoidFunction;
   resetGrid: VoidFunction;
+  clearPath: VoidFunction;
 }
 
-const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
+const Controls = ({ visualizeGrid, resetGrid, clearPath }: ControlsProps) => {
   const selectedAlgorithm = useRecoilValue(selectedAlgorithmAtom);
   return (
     <div className="controls">
@@ -25,37 +27,64 @@ const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
         sx={{
           alignItems: "center",
           mb: "5%",
-          backgroundColor: "#247BA0",
+          backgroundColor: "#FFA254",
         }}
       >
-        <Toolbar id="toolbar" sx={{ width: "100%" }}>
-          <Typography variant="h4" sx={{ ml: 3, flex: 1 }}>
+        <Toolbar id="toolbar" variant="dense" sx={{ width: "100%" }}>
+          <Typography
+            variant="h4"
+            sx={{ ml: 3, fontFamily: "Dancing Script", fontWeight: 700 }}
+          >
             Pathfinder
           </Typography>
-          <Box>
-            <AlgorithmMenu />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-evenly",
+              alignItems: "center",
+              flexDirection: "row",
+              flex: 1,
+            }}
+          >
+            <div>
+              <AlgorithmMenu />
+              <PatternMenu />
+            </div>
             <Button
-              size="large"
+              size="medium"
               color="inherit"
-              sx={{ ml: 3 }}
+              sx={{
+                "&": { mx: "5px", backgroundColor: "#FF7800" },
+                "&:hover": {
+                  backgroundColor: "#FF7800",
+                  transform: "translateY(-2px)",
+                },
+              }}
               onClick={visualizeGrid}
             >
               {`Visualize ${selectedAlgorithm}`}
             </Button>
-            <Button
-              size="large"
-              color="inherit"
-              sx={{ ml: 3 }}
-              onClick={resetGrid}
-            >
-              Reset grid
-            </Button>
-            <SpeedMenu />
+            <div>
+              <Button
+                size="small"
+                color="inherit"
+                sx={{ mx: "5px", backgroundColor: "#FF9500" }}
+                onClick={resetGrid}
+              >
+                Reset grid
+              </Button>
+              <Button
+                size="small"
+                color="inherit"
+                sx={{ mx: "5px", backgroundColor: "#FF9500" }}
+                onClick={clearPath}
+              >
+                Clear path
+              </Button>
+            </div>
           </Box>
-          <Box
-            sx={{ mr: 3, flex: 1, display: "flex", justifyContent: "flex-end" }}
-          >
-            <GiHamburgerMenu />
+          <Box sx={{ mr: 3, display: "flex", justifyContent: "flex-end" }}>
+            <SpeedMenu />
           </Box>
         </Toolbar>
       </AppBar>

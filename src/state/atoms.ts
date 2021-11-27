@@ -1,6 +1,6 @@
 import { atom, atomFamily } from "recoil";
 import { Algorithm, Node } from "../types";
-import { FAST_NODE_UPDATE_SPEED } from "./constants";
+import { MEDIUM_NODE_UPDATE_SPEED } from "./constants";
 
 const createNode = (row: number, column: number): Node => {
   return {
@@ -57,7 +57,7 @@ export const selectedAlgorithmAtom = atom<string>({
 
 export const visualizationSpeedAtom = atom<number>({
   key: "visualizationSpeed",
-  default: FAST_NODE_UPDATE_SPEED,
+  default: MEDIUM_NODE_UPDATE_SPEED,
 });
 
 export const nodeClassesAtom = atomFamily<string, number[]>({

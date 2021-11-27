@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useRecoilState } from "recoil";
-import { visualizationSpeedAtom } from "../state/atoms";
+import { visualizationSpeedAtom } from "../../state/atoms";
 import Button from "@mui/material/Button";
 import { BsFillCaretDownFill } from "react-icons/bs";
 import {
   FAST_NODE_UPDATE_SPEED,
   MEDIUM_NODE_UPDATE_SPEED,
   SLOW_NODE_UPDATE_SPEED,
-} from "../state/constants";
+} from "../../state/constants";
 
 const SpeedMenu = () => {
   const [visualizationSpeed, setVisualizationSpeed] = useRecoilState(
@@ -40,12 +40,12 @@ const SpeedMenu = () => {
   return (
     <span>
       <Button
-        sx={{ ml: 3 }}
+        sx={{ ml: "5px", backgroundColor: "#FF9500" }}
         color="inherit"
-        size="large"
+        size="small"
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
-        endIcon={<BsFillCaretDownFill size="15" />}
+        endIcon={<BsFillCaretDownFill size="12" />}
         onClick={handleSpeedMenuClick}
       >
         {`Speed: ${getSpeedString()}`}
