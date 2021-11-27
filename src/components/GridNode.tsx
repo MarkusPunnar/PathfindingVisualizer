@@ -22,8 +22,8 @@ import {
   DEFAULT_END_ROW,
   DEFAULT_START_COLUMN,
   DEFAULT_START_ROW,
-  FAST_NODE_UPDATE_SPEED,
 } from "../state/constants";
+import { useTimeout } from "../hooks";
 
 const PATH_CLASS = "path";
 const VISITED_CLASS = "visited";
@@ -43,11 +43,7 @@ const getPathNodeDelay = (
   visitedCount: number,
   pathNumber: number
 ): number => {
-  const delay =
-    visualizationSpeed * visitedCount +
-    FAST_NODE_UPDATE_SPEED * (pathNumber + 1);
-  console.log(`${pathNumber} - ${delay}`);
-  return delay;
+  return visualizationSpeed * (visitedCount + pathNumber + 1);
 };
 
 const getVisitedNodeDelay = (
@@ -101,46 +97,27 @@ const GridNode = ({
     setIsEndPosition(isEndPosition, getIndex(node));
     setResetNode(resetNode, getIndex(node));
   });
-  useEffect(() => {
-    const timeouts: NodeJS.Timeout[] = [];
+  useTimeout(() => {
     if (visitedNumber !== -1 && !node.flags.isVisited) {
-      const visitTimerId = setTimeout(() => {
-        ReactDOM.unstable_batchedUpdates(() => {
-          setNode({
-            ...node,
-            flags: {
-              ...node.flags,
-              isVisited: true,
-            },
-          });
-          setClasses(
-            classNames(getClassNames(node.flags.isWall), VISITED_CLASS)
-          );
+      ReactDOM.unstable_batchedUpdates(() => {
+        setNode({
+          ...node,
+          flags: {
+            ...node.flags,
+            isVisited: true,
+          },
         });
-      }, getVisitedNodeDelay(visualizationSpeed, visitedNumber));
-      timeouts.push(visitTimerId);
-    } else if (pathNumber !== -1) {
-      const pathTimerId = setTimeout(() => {
-        setClasses(classNames(getClassNames(node.flags.isWall), PATH_CLASS));
-      }, getPathNodeDelay(visualizationSpeed, visitedCount, pathNumber));
-      timeouts.push(pathTimerId);
-    }
-    return () => {
-      timeouts.forEach((timeout) => {
-        clearTimeout(timeout);
+        setClasses(classNames(getClassNames(node.flags.isWall), VISITED_CLASS));
       });
-    };
-  }, [
-    getClassNames,
-    classes,
-    visitedNumber,
-    node,
-    pathNumber,
-    setNode,
-    setClasses,
-    visitedCount,
-    visualizationSpeed,
-  ]);
+    }
+  }, getVisitedNodeDelay(visualizationSpeed, visitedNumber));
+
+  useTimeout(() => {
+    if (pathNumber !== -1) {
+      setClasses(classNames(getClassNames(node.flags.isWall), PATH_CLASS));
+    }
+  }, getPathNodeDelay(visualizationSpeed, visitedCount, pathNumber));
+
   const handleMouseOver = () => {
     if (isMovingStart) {
       setIsStart(true);

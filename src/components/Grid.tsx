@@ -22,13 +22,13 @@ import { dijkstra } from "../algorithms/dijkstra";
 import { aStar } from "../algorithms/astar";
 
 interface GridProps {
-  setOnVisualize: (childVisualize: () => void) => void;
-  setOnClear: (childClear: () => void) => void;
+  setOnVisualize: (childVisualize: VoidFunction) => void;
+  setOnClear: (childClear: VoidFunction) => void;
 }
 
 const startPositionFuncs: (() => NodePosition)[] = [];
 const endPositionFuncs: (() => NodePosition)[] = [];
-const resetNodeFuncs: (() => void)[] = [];
+const resetNodeFuncs: VoidFunction[] = [];
 
 const getShortestPath = (endNode: Node): Node[] => {
   const shortestPath: Node[] = [];

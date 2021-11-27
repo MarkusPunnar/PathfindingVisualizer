@@ -12,8 +12,8 @@ import AlgorithmMenu from "./AlgorithmMenu";
 import SpeedMenu from "./SpeedMenu";
 
 interface ControlsProps {
-  visualizeGrid: () => void;
-  resetGrid: () => void;
+  visualizeGrid: VoidFunction;
+  resetGrid: VoidFunction;
 }
 
 const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
@@ -24,7 +24,7 @@ const Controls = ({ visualizeGrid, resetGrid }: ControlsProps) => {
         position="static"
         sx={{
           alignItems: "center",
-          mb: 10,
+          mb: "5%",
           backgroundColor: "#247BA0",
         }}
       >

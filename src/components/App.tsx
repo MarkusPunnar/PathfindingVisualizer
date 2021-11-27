@@ -2,15 +2,16 @@ import React from "react";
 import Grid from "./Grid";
 import Controls from "./Controls";
 import "../css/app.scss";
+import { VoidFunction } from "../types";
 
-let visualizeGrid: () => void = () => {};
-let resetGrid: () => void = () => {};
+let visualizeGrid: VoidFunction = () => {};
+let resetGrid: VoidFunction = () => {};
 
 const App = () => {
-  const setOnVisualize = (childVisualize: () => void) => {
+  const setOnVisualize = (childVisualize: VoidFunction) => {
     visualizeGrid = childVisualize;
   };
-  const setOnClear = (childClear: () => void) => {
+  const setOnClear = (childClear: VoidFunction) => {
     resetGrid = childClear;
   };
   return (

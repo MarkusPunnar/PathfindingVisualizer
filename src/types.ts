@@ -1,3 +1,5 @@
+export type VoidFunction = () => void;
+
 export interface Node {
   position: NodePosition;
   flags: NodeFlags;
