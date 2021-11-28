@@ -24,6 +24,9 @@ export interface NodePosition {
 export interface NodeFlags {
   isWall: boolean;
   isVisited: boolean;
+  isPath: boolean;
+  isStart: boolean;
+  isEnd: boolean;
 }
 
 export enum Algorithm {

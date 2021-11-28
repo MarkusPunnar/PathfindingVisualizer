@@ -1,6 +1,12 @@
 import { atom, atomFamily } from "recoil";
 import { Algorithm, Node } from "../types";
-import { MEDIUM_NODE_UPDATE_SPEED } from "./constants";
+import {
+  MEDIUM_NODE_UPDATE_SPEED,
+  DEFAULT_END_COLUMN,
+  DEFAULT_END_ROW,
+  DEFAULT_START_COLUMN,
+  DEFAULT_START_ROW,
+} from "./constants";
 
 const createNode = (row: number, column: number): Node => {
   return {
@@ -11,6 +17,9 @@ const createNode = (row: number, column: number): Node => {
     flags: {
       isWall: false,
       isVisited: false,
+      isPath: false,
+      isStart: row === DEFAULT_START_ROW && column === DEFAULT_START_COLUMN,
+      isEnd: row === DEFAULT_END_ROW && column === DEFAULT_END_COLUMN,
     },
   };
 };
@@ -58,9 +67,4 @@ export const selectedAlgorithmAtom = atom<string>({
 export const visualizationSpeedAtom = atom<number>({
   key: "visualizationSpeed",
   default: MEDIUM_NODE_UPDATE_SPEED,
-});
-
-export const nodeClassesAtom = atomFamily<string, number[]>({
-  key: "nodeClasses",
-  default: "node",
 });

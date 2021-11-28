@@ -9,7 +9,6 @@ import "../css/grid.scss";
 import {
   isDrawingWallsAtom,
   nodeAtom,
-  nodeClassesAtom,
   isVisualizedAtom,
   visitedNodesAtom,
   shortestPathNodesAtom,
@@ -29,7 +28,6 @@ interface GridProps {
 
 const startPositionFuncs: (() => NodePosition)[] = [];
 const endPositionFuncs: (() => NodePosition)[] = [];
-const resetNodeFuncs: VoidFunction[] = [];
 const clearNodeFuncs: VoidFunction[] = [];
 
 const getShortestPath = (endNode: Node): Node[] => {
@@ -85,9 +83,6 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
   ) => {
     endPositionFuncs[childIndex] = childEndPosition;
   };
-  const setResetNode = (childResetNode: VoidFunction, childIndex: number) => {
-    resetNodeFuncs[childIndex] = childResetNode;
-  };
   const setClearNode = (childClearNode: VoidFunction, childIndex: number) => {
     clearNodeFuncs[childIndex] = childClearNode;
   };
@@ -104,7 +99,6 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
       setIsVisualized(true);
     });
     setOnReset(() => {
-      resetNodeFuncs.forEach((resetFunc) => resetFunc());
       resetGridState();
       setVisitedNodes([]);
       setShortestPathNodes([]);
@@ -134,7 +128,6 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
     for (let i = 0; i < NUM_OF_ROWS; i++) {
       for (let j = 0; j < NUM_OF_NODES; j++) {
         reset(nodeAtom([i, j]));
-        reset(nodeClassesAtom([i, j]));
       }
     }
   });
@@ -185,7 +178,6 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
             )}
             setIsStartPosition={setIsStartPosition}
             setIsEndPosition={setIsEndPosition}
-            setResetNode={setResetNode}
             setClearNode={setClearNode}
             key={index}
           ></GridNode>

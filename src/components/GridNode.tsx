@@ -1,9 +1,7 @@
-import classNames from "classnames";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { VscDebugStart } from "react-icons/vsc";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { useCallback } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 import "../css/gridNode.scss";
 import {
@@ -12,21 +10,12 @@ import {
   isMovingEndAtom,
   isVisualizedAtom,
   nodeAtom,
-  nodeClassesAtom,
   visualizationSpeedAtom,
 } from "../state/atoms";
 import { NodePosition, VoidFunction } from "../types";
 import { getIndex } from "../algorithms/common";
-import {
-  DEFAULT_END_COLUMN,
-  DEFAULT_END_ROW,
-  DEFAULT_START_COLUMN,
-  DEFAULT_START_ROW,
-} from "../state/constants";
 import { useTimeout } from "../hooks";
-
-const PATH_CLASS = "path";
-const VISITED_CLASS = "visited";
+import { nodeClassesSelector } from "../state/selectors";
 
 interface NodeProps {
   position: NodePosition;
@@ -35,7 +24,6 @@ interface NodeProps {
   pathNumber: number;
   setIsStartPosition: any;
   setIsEndPosition: any;
-  setResetNode: (childResetNode: VoidFunction, index: number) => void;
   setClearNode: (childClearNode: VoidFunction, index: number) => void;
 }
 
@@ -61,7 +49,6 @@ const GridNode = ({
   visitedCount,
   setIsStartPosition,
   setIsEndPosition,
-  setResetNode,
   setClearNode,
 }: NodeProps) => {
   const isDrawingWalls = useRecoilValue(isDrawingWallsAtom);
@@ -70,44 +57,46 @@ const GridNode = ({
   const [isMovingStart, setIsMovingStart] = useRecoilState(isMovingStartAtom);
   const [isMovingEnd, setIsMovingEnd] = useRecoilState(isMovingEndAtom);
   const [node, setNode] = useRecoilState(nodeAtom([row, column]));
-  const isDefaultStart = () =>
-    row === DEFAULT_START_ROW && column === DEFAULT_START_COLUMN;
-  const isDefaultEnd = () =>
-    row === DEFAULT_END_ROW && column === DEFAULT_END_COLUMN;
-  const [isStart, setIsStart] = useState<boolean>(isDefaultStart());
-  const [isEnd, setIsEnd] = useState<boolean>(isDefaultEnd());
-  const getClassNames = useCallback((isWall: boolean): string => {
-    const wallClass = isWall ? "wall" : "";
-    return classNames("node", wallClass);
-  }, []);
-
-  const [classes, setClasses] = useRecoilState<string>(
-    nodeClassesAtom([row, column])
+  const nodeClasses = useRecoilValue<string>(
+    nodeClassesSelector([row, column])
   );
   const isStartPosition = () => {
-    return isStart ? { row, column } : undefined;
+    return node.flags.isStart ? { row, column } : undefined;
   };
   const isEndPosition = () => {
-    return isEnd ? { row, column } : undefined;
-  };
-  const resetNode = () => {
-    setIsStart(isDefaultStart());
-    setIsEnd(isDefaultEnd());
+    return node.flags.isEnd ? { row, column } : undefined;
   };
   const clearNode = () => {
-    setClasses(getClassNames(node.flags.isWall));
     setNode({
       ...node,
       flags: {
         ...node.flags,
         isVisited: false,
+        isPath: false,
+      },
+    });
+  };
+  const setIsStart = (isStart: boolean) => {
+    setNode({
+      ...node,
+      flags: {
+        ...node.flags,
+        isStart,
+      },
+    });
+  };
+  const setIsEnd = (isEnd: boolean) => {
+    setNode({
+      ...node,
+      flags: {
+        ...node.flags,
+        isEnd,
       },
     });
   };
   useEffect(() => {
     setIsStartPosition(isStartPosition, getIndex(node));
     setIsEndPosition(isEndPosition, getIndex(node));
-    setResetNode(resetNode, getIndex(node));
     setClearNode(clearNode, getIndex(node));
   });
   useTimeout(() => {
@@ -120,14 +109,19 @@ const GridNode = ({
             isVisited: true,
           },
         });
-        setClasses(classNames(getClassNames(node.flags.isWall), VISITED_CLASS));
       });
     }
   }, getVisitedNodeDelay(visualizationSpeed, visitedNumber));
 
   useTimeout(() => {
     if (pathNumber !== -1) {
-      setClasses(classNames(getClassNames(node.flags.isWall), PATH_CLASS));
+      setNode({
+        ...node,
+        flags: {
+          ...node.flags,
+          isPath: true,
+        },
+      });
     }
   }, getPathNodeDelay(visualizationSpeed, visitedCount, pathNumber));
 
@@ -142,6 +136,7 @@ const GridNode = ({
   };
 
   const handleMouseDown = () => {
+    const { isStart, isEnd } = node.flags;
     if (isStart && !isVisualized) {
       setIsMovingStart(true);
     } else if (isEnd && !isVisualized) {
@@ -152,6 +147,7 @@ const GridNode = ({
   };
 
   const handleMouseLeave = () => {
+    const { isStart, isEnd } = node.flags;
     if (isStart && isMovingStart) {
       setIsStart(false);
     } else if (isEnd && isMovingEnd) {
@@ -173,19 +169,18 @@ const GridNode = ({
           isWall: !node.flags.isWall,
         },
       });
-      setClasses(getClassNames(!node.flags.isWall));
     }
   };
   return (
     <div
-      className={classes}
+      className={nodeClasses}
       onMouseOver={handleMouseOver}
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseLeave}
       onMouseUp={handleMouseUp}
     >
-      {isStart && <VscDebugStart className="icon" />}
-      {isEnd && <FaMapMarkerAlt className="icon" />}
+      {node.flags.isStart && <VscDebugStart className="icon" />}
+      {node.flags.isEnd && <FaMapMarkerAlt className="icon" />}
     </div>
   );
 };
