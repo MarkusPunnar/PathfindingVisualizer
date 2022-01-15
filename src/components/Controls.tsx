@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import { useRecoilValue } from "recoil";
-import { selectedAlgorithmAtom } from "../state/atoms";
+import { isVisualizedAtom, selectedAlgorithmAtom } from "../state/atoms";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import "../css/controls.scss";
@@ -20,6 +20,7 @@ interface ControlsProps {
 
 const Controls = ({ visualizeGrid, resetGrid, clearPath }: ControlsProps) => {
   const selectedAlgorithm = useRecoilValue(selectedAlgorithmAtom);
+  const isVisualized = useRecoilValue(isVisualizedAtom);
   return (
     <div className="controls">
       <AppBar
@@ -48,7 +49,7 @@ const Controls = ({ visualizeGrid, resetGrid, clearPath }: ControlsProps) => {
           >
             <div>
               <AlgorithmMenu />
-              <PatternMenu />
+              <PatternMenu isDisabled={isVisualized} />
             </div>
             <Button
               size="medium"
@@ -59,7 +60,12 @@ const Controls = ({ visualizeGrid, resetGrid, clearPath }: ControlsProps) => {
                   backgroundColor: "#FF7800",
                   transform: "translateY(-2px)",
                 },
+                "&:disabled": {
+                  color: "white",
+                  backgroundColor: "#B4876C",
+                },
               }}
+              disabled={isVisualized}
               onClick={visualizeGrid}
             >
               {`Visualize ${selectedAlgorithm}`}

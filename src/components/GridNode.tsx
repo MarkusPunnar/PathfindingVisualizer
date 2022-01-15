@@ -2,10 +2,9 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { VscDebugStart } from "react-icons/vsc";
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilCallback, useRecoilState, useRecoilValue } from "recoil";
 import "../css/gridNode.scss";
 import {
-  isDrawingWallsAtom,
   isMovingStartAtom,
   isMovingEndAtom,
   isVisualizedAtom,
@@ -16,6 +15,12 @@ import { NodePosition, VoidFunction } from "../types";
 import { getIndex } from "../algorithms/common";
 import { useTimeout } from "../hooks";
 import { nodeClassesSelector } from "../state/selectors";
+import {
+  DEFAULT_END_COLUMN,
+  DEFAULT_END_ROW,
+  DEFAULT_START_COLUMN,
+  DEFAULT_START_ROW,
+} from "../state/constants";
 
 interface NodeProps {
   position: NodePosition;
@@ -51,7 +56,6 @@ const GridNode = ({
   setIsEndPosition,
   setClearNode,
 }: NodeProps) => {
-  const isDrawingWalls = useRecoilValue(isDrawingWallsAtom);
   const isVisualized = useRecoilValue(isVisualizedAtom);
   const visualizationSpeed = useRecoilValue(visualizationSpeedAtom);
   const [isMovingStart, setIsMovingStart] = useRecoilState(isMovingStartAtom);
@@ -125,17 +129,21 @@ const GridNode = ({
     }
   }, getPathNodeDelay(visualizationSpeed, visitedCount, pathNumber));
 
-  const handleMouseOver = () => {
-    if (isMovingStart) {
+  const handleMouseOver = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    const isLeftMouseButtonPressed = e.buttons === 1;
+    const { isWall } = node.flags;
+    if (!isWall && isMovingStart) {
       setIsStart(true);
-    } else if (isMovingEnd) {
+    } else if (!isWall && isMovingEnd) {
       setIsEnd(true);
-    } else if (isDrawingWalls) {
+    } else if (isLeftMouseButtonPressed && !isMovingStart && !isMovingEnd) {
       drawWall();
     }
   };
 
-  const handleMouseDown = () => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
     const { isStart, isEnd } = node.flags;
     if (isStart && !isVisualized) {
       setIsMovingStart(true);
@@ -146,7 +154,8 @@ const GridNode = ({
     }
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
     const { isStart, isEnd } = node.flags;
     if (isStart && isMovingStart) {
       setIsStart(false);
@@ -155,7 +164,26 @@ const GridNode = ({
     }
   };
 
-  const handleMouseUp = () => {
+  const resetStart = useRecoilCallback(({ reset }) => () => {
+    reset(nodeAtom([DEFAULT_START_ROW, DEFAULT_START_COLUMN]));
+  });
+
+  const resetEnd = useRecoilCallback(({ reset }) => () => {
+    reset(nodeAtom([DEFAULT_END_ROW, DEFAULT_END_COLUMN]));
+  });
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    const { isWall } = node.flags;
+    if (isWall) {
+      if (isMovingStart) {
+        setIsStart(false);
+        resetStart();
+      } else if (isMovingEnd) {
+        setIsEnd(false);
+        resetEnd();
+      }
+    }
     setIsMovingStart(false);
     setIsMovingEnd(false);
   };

@@ -24,11 +24,6 @@ const createNode = (row: number, column: number): Node => {
   };
 };
 
-export const isDrawingWallsAtom = atom<boolean>({
-  key: "isDrawingWalls",
-  default: false,
-});
-
 export const isVisualizedAtom = atom<boolean>({
   key: "isVisualized",
   default: false,

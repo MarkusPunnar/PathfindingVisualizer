@@ -3,11 +3,17 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import Button from "@mui/material/Button";
 import { BsFillCaretDownFill } from "react-icons/bs";
-import { useRecoilCallback } from "recoil";
-import { NUM_OF_NODES, NUM_OF_ROWS } from "../../state/constants";
-import { nodeAtom } from "../../state/atoms";
+import { useRecoilCallback, useRecoilValue } from "recoil";
+import { nodeAtom, visualizationSpeedAtom } from "../../state/atoms";
+import { getRandomPatternWalls } from "../../patterns/random";
+import { getRecursiveDivisionWallNodes } from "../../patterns/recursive";
 
-const PatternMenu = () => {
+interface PatternMenuProps {
+  isDisabled: boolean;
+}
+
+const PatternMenu = ({ isDisabled }: PatternMenuProps) => {
+  const visualizationSpeed = useRecoilValue(visualizationSpeedAtom);
   const [menuAnchorElement, setMenuAnchorElement] =
     useState<HTMLElement | null>(null);
   const open = Boolean(menuAnchorElement);
@@ -18,34 +24,77 @@ const PatternMenu = () => {
     setMenuAnchorElement(null);
     generateRandomMaze();
   };
+  const handleRecursiveDivisionClick = () => {
+    setMenuAnchorElement(null);
+    generateRecursiveDivisionMaze();
+  };
   const generateRandomMaze = useRecoilCallback(
     ({ set, snapshot: { getLoadable } }) =>
       () => {
-        for (let i = 0; i < NUM_OF_ROWS; i++) {
-          for (let j = 0; j < NUM_OF_NODES; j++) {
-            const nodeValue = getLoadable(nodeAtom([i, j])).getValue();
-            const { isStart, isEnd } = nodeValue.flags;
-            const randomFactor = Math.random();
-            if (randomFactor > 0.7 && !isStart && !isEnd) {
-              set(nodeAtom([i, j]), {
-                ...nodeValue,
-                flags: { ...nodeValue.flags, isWall: true },
+        const getNodeFunction = (i: number, j: number) => {
+          return getLoadable(nodeAtom([i, j])).getValue();
+        };
+        getRandomPatternWalls(getNodeFunction).forEach((wallNode) => {
+          const { row, column } = wallNode.position;
+          set(nodeAtom([row, column]), {
+            ...wallNode,
+            flags: {
+              ...wallNode.flags,
+              isVisited: false,
+              isPath: false,
+              isWall: true,
+            },
+          });
+        });
+      }
+  );
+  const generateRecursiveDivisionMaze = useRecoilCallback(
+    ({ set, snapshot: { getLoadable } }) =>
+      () => {
+        const getNodeFunction = (i: number, j: number) => {
+          return getLoadable(nodeAtom([i, j])).getValue();
+        };
+        getRecursiveDivisionWallNodes(getNodeFunction)
+          .sort((a, b) => {
+            return a.position.column - b.position.column;
+          })
+          .filter((wallNode) => {
+            const { isStart, isEnd } = wallNode.flags;
+            return !isStart && !isEnd;
+          })
+          .forEach((wallNode, i) => {
+            const { row, column } = wallNode.position;
+            setTimeout(() => {
+              set(nodeAtom([row, column]), {
+                ...wallNode,
+                flags: {
+                  ...wallNode.flags,
+                  isVisited: false,
+                  isPath: false,
+                  isWall: true,
+                },
               });
-            }
-          }
-        }
+            }, (visualizationSpeed * (i + 1)) / 2);
+          });
       }
   );
   return (
     <span>
       <Button
-        sx={{ mx: "5px", backgroundColor: "#FF9500" }}
+        sx={{
+          "&": { mx: "5px", backgroundColor: "#FF9500" },
+          "&:disabled": {
+            color: "white",
+            backgroundColor: "#B4876C",
+          },
+        }}
         color="inherit"
         size="small"
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         endIcon={<BsFillCaretDownFill size="12" />}
         onClick={handlePatternMenuClick}
+        disabled={isDisabled}
       >
         Patterns
       </Button>
@@ -56,6 +105,9 @@ const PatternMenu = () => {
         onClose={() => setMenuAnchorElement(null)}
       >
         <MenuItem onClick={handleRandomMazeClick}>Random maze</MenuItem>
+        <MenuItem onClick={handleRecursiveDivisionClick}>
+          Recursive division
+        </MenuItem>
       </Menu>
     </span>
   );

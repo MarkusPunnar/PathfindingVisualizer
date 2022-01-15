@@ -7,7 +7,6 @@ import {
 } from "recoil";
 import "../css/grid.scss";
 import {
-  isDrawingWallsAtom,
   nodeAtom,
   isVisualizedAtom,
   visitedNodesAtom,
@@ -86,7 +85,6 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
   const setClearNode = (childClearNode: VoidFunction, childIndex: number) => {
     clearNodeFuncs[childIndex] = childClearNode;
   };
-  const setIsDrawingWalls = useSetRecoilState(isDrawingWallsAtom);
   const setIsVisualized = useSetRecoilState(isVisualizedAtom);
   const [visitedNodes, setVisitedNodes] = useRecoilState(visitedNodesAtom);
   const [shortestPathNodes, setShortestPathNodes] = useRecoilState(
@@ -158,11 +156,7 @@ const Grid = ({ setOnVisualize, setOnReset, setOnClearPath }: GridProps) => {
     setVisitedNodes(newVisitedNodes);
   };
   return (
-    <div
-      className="grid"
-      onMouseDown={() => setIsDrawingWalls(true)}
-      onMouseUp={() => setIsDrawingWalls(false)}
-    >
+    <div className="grid">
       {Array.from(Array(NUM_OF_ROWS * NUM_OF_NODES).keys()).map((index) => {
         const row = Math.floor(index / NUM_OF_NODES);
         const column = index % NUM_OF_NODES;

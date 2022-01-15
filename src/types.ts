@@ -1,4 +1,5 @@
 export type VoidFunction = () => void;
+export type GetNodeFunction = (i: number, j: number) => Node;
 
 export interface Node {
   position: NodePosition;
