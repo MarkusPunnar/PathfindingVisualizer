@@ -1,5 +1,9 @@
 @import "base";
 
+:root {
+  --weight-node-color: "white";
+}
+
 .node {
   height: 1.6vw;
   width: 1.6vw;
@@ -11,24 +15,29 @@
 
 .wall {
   background-image: linear-gradient($wall_node, $wall_node);
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
-  animation-name: createNode;
-  animation-duration: 0.3s;
-  animation-timing-function: ease-in;
 }
 
 .visited {
   background-image: linear-gradient($visited_node_1, $visited_node_2);
-  background-position: 50% 50%;
-  background-repeat: no-repeat;
+}
+
+.node-animation {
   animation-name: createNode;
   animation-duration: 0.3s;
   animation-timing-function: ease-in;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
 }
 
 .path {
   background-image: linear-gradient(darken($path_node_1, 5%), $path_node_2);
+}
+
+.weight-node {
+  background-image: linear-gradient(
+    var(--weight-node-color),
+    var(--weight-node-color)
+  );
 }
 
 @media only screen and (min-width: 1800px) {

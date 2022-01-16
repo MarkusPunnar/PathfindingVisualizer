@@ -48,7 +48,8 @@ export const dijkstra = (
       seenIndices.add(index);
       const neighbours = getNeighbours(grid, index);
       neighbours.forEach((neighbour) => {
-        const newDistance = getDistance(closestNode) + 1;
+        const newDistance =
+          getDistance(closestNode) + closestNode.weightProps.weight;
         if (newDistance < getDistance(neighbour)) {
           const newNeighbour: Node = JSON.parse(JSON.stringify(neighbour));
           setDistance(newNeighbour, newDistance);

@@ -1,11 +1,17 @@
 import { atom, atomFamily } from "recoil";
-import { Algorithm, Node } from "../types";
 import {
-  MEDIUM_NODE_UPDATE_SPEED,
+  Algorithm,
+  DrawingMode,
+  Node,
+  VisualizationSpeed,
+  WeightNode,
+} from "../types";
+import {
   DEFAULT_END_COLUMN,
   DEFAULT_END_ROW,
   DEFAULT_START_COLUMN,
   DEFAULT_START_ROW,
+  DEFAULT_WEIGHT_NODES,
 } from "./constants";
 
 const createNode = (row: number, column: number): Node => {
@@ -20,6 +26,10 @@ const createNode = (row: number, column: number): Node => {
       isPath: false,
       isStart: row === DEFAULT_START_ROW && column === DEFAULT_START_COLUMN,
       isEnd: row === DEFAULT_END_ROW && column === DEFAULT_END_COLUMN,
+    },
+    weightProps: {
+      weight: 1,
+      color: "",
     },
   };
 };
@@ -59,7 +69,22 @@ export const selectedAlgorithmAtom = atom<string>({
   default: Algorithm.Dijkstra,
 });
 
-export const visualizationSpeedAtom = atom<number>({
+export const visualizationSpeedAtom = atom<VisualizationSpeed>({
   key: "visualizationSpeed",
-  default: MEDIUM_NODE_UPDATE_SPEED,
+  default: VisualizationSpeed.Medium,
+});
+
+export const drawingModeAtom = atom<DrawingMode>({
+  key: "drawingMode",
+  default: DrawingMode.Wall,
+});
+
+export const selectedWeightNodeAtom = atom<WeightNode>({
+  key: "selectedWeightNode",
+  default: DEFAULT_WEIGHT_NODES[0],
+});
+
+export const weightNodesAtom = atom<WeightNode[]>({
+  key: "weightNodes",
+  default: DEFAULT_WEIGHT_NODES,
 });

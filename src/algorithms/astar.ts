@@ -51,7 +51,7 @@ export const aStar = (
       seenIndices.add(index);
       const neighbours = getNeighbours(grid, index);
       neighbours.forEach((neighbour) => {
-        const newScore = currentProps.g + 1;
+        const newScore = currentProps.g + neighbour.weightProps.weight;
         if (newScore < getGScore(neighbour)) {
           neighbour.parent = currentNode;
           setGScore(neighbour, newScore);

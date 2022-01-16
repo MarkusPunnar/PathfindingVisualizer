@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { VscDebugStart } from "react-icons/vsc";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -10,8 +10,10 @@ import {
   isVisualizedAtom,
   nodeAtom,
   visualizationSpeedAtom,
+  drawingModeAtom,
+  selectedWeightNodeAtom,
 } from "../state/atoms";
-import { NodePosition, VoidFunction } from "../types";
+import { DrawingMode, NodePosition, VoidFunction } from "../types";
 import { getIndex } from "../algorithms/common";
 import { useTimeout } from "../hooks";
 import { nodeClassesSelector } from "../state/selectors";
@@ -58,6 +60,8 @@ const GridNode = ({
 }: NodeProps) => {
   const isVisualized = useRecoilValue(isVisualizedAtom);
   const visualizationSpeed = useRecoilValue(visualizationSpeedAtom);
+  const drawingMode = useRecoilValue(drawingModeAtom);
+  const selectedWeightNode = useRecoilValue(selectedWeightNodeAtom);
   const [isMovingStart, setIsMovingStart] = useRecoilState(isMovingStartAtom);
   const [isMovingEnd, setIsMovingEnd] = useRecoilState(isMovingEndAtom);
   const [node, setNode] = useRecoilState(nodeAtom([row, column]));
@@ -138,7 +142,7 @@ const GridNode = ({
     } else if (!isWall && isMovingEnd) {
       setIsEnd(true);
     } else if (isLeftMouseButtonPressed && !isMovingStart && !isMovingEnd) {
-      drawWall();
+      drawNode();
     }
   };
 
@@ -150,7 +154,7 @@ const GridNode = ({
     } else if (isEnd && !isVisualized) {
       setIsMovingEnd(true);
     } else {
-      drawWall();
+      drawNode();
     }
   };
 
@@ -188,20 +192,52 @@ const GridNode = ({
     setIsMovingEnd(false);
   };
 
-  const drawWall = () => {
+  const drawNode = () => {
     if (!isVisualized) {
-      setNode({
-        ...node,
-        flags: {
-          ...node.flags,
-          isWall: !node.flags.isWall,
-        },
-      });
+      if (drawingMode === DrawingMode.Wall) {
+        setNode({
+          ...node,
+          flags: {
+            ...node.flags,
+            isWall: !node.flags.isWall,
+          },
+          weightProps: {
+            weight: Infinity,
+            color: "",
+          },
+        });
+      } else {
+        setNode({
+          ...node,
+          flags: {
+            ...node.flags,
+            isWall: false,
+          },
+          weightProps: {
+            weight: selectedWeightNode.weight,
+            color: selectedWeightNode.color,
+          },
+        });
+      }
     }
+  };
+  if (node.weightProps.color.length !== 0) {
+    document.documentElement.style.setProperty(
+      "--weight-node-color",
+      node.weightProps.color
+    );
+  }
+
+  const styles: React.CSSProperties = {
+    filter:
+      node.flags.isVisited && node.weightProps.color.length !== 0
+        ? "brightness(0.7)"
+        : "brightness(1)",
   };
   return (
     <div
       className={nodeClasses}
+      style={styles}
       onMouseOver={handleMouseOver}
       onMouseDown={handleMouseDown}
       onMouseLeave={handleMouseLeave}

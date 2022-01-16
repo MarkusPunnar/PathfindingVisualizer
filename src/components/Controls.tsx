@@ -8,9 +8,9 @@ import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import "../css/controls.scss";
 import AlgorithmMenu from "./menu/AlgorithmMenu";
-import SpeedMenu from "./menu/SpeedMenu";
 import { VoidFunction } from "../types";
 import PatternMenu from "./menu/PatternMenu";
+import ConfigurationDrawer from "./drawer/ConfigurationDrawer";
 
 interface ControlsProps {
   visualizeGrid: VoidFunction;
@@ -90,7 +90,7 @@ const Controls = ({ visualizeGrid, resetGrid, clearPath }: ControlsProps) => {
             </div>
           </Box>
           <Box sx={{ mr: 3, display: "flex", justifyContent: "flex-end" }}>
-            <SpeedMenu />
+            <ConfigurationDrawer />
           </Box>
         </Toolbar>
       </AppBar>
