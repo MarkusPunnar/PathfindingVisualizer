@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { VscDebugStart } from "react-icons/vsc";
 import { FaMapMarkerAlt } from "react-icons/fa";
@@ -214,21 +214,20 @@ const GridNode = ({
             isWall: false,
           },
           weightProps: {
-            weight: selectedWeightNode.weight,
-            color: selectedWeightNode.color,
+            weight:
+              node.weightProps.weight === 1 ? selectedWeightNode.weight : 1,
+            color:
+              node.weightProps.color === "" ? selectedWeightNode.color : "",
           },
         });
       }
     }
   };
-  if (node.weightProps.color.length !== 0) {
-    document.documentElement.style.setProperty(
-      "--weight-node-color",
-      node.weightProps.color
-    );
-  }
-
   const styles: React.CSSProperties = {
+    backgroundImage:
+      node.weightProps.color.length !== 0
+        ? `linear-gradient(${node.weightProps.color}, ${node.weightProps.color})`
+        : "",
     filter:
       node.flags.isVisited && node.weightProps.color.length !== 0
         ? "brightness(0.7)"

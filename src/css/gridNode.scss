@@ -1,9 +1,5 @@
 @import "base";
 
-:root {
-  --weight-node-color: "white";
-}
-
 .node {
   height: 1.6vw;
   width: 1.6vw;
@@ -31,13 +27,6 @@
 
 .path {
   background-image: linear-gradient(darken($path_node_1, 5%), $path_node_2);
-}
-
-.weight-node {
-  background-image: linear-gradient(
-    var(--weight-node-color),
-    var(--weight-node-color)
-  );
 }
 
 @media only screen and (min-width: 1800px) {
